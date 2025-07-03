@@ -51,10 +51,14 @@ resource "aws_launch_template" "lt" {
   key_name      = aws_key_pair.key.key_name
   vpc_security_group_ids = [aws_security_group.sg.id]
   user_data = base64encode(templatefile("${path.module}/docker-compose.tpl", {
-    image = var.image,
-    tag   = var.branch,
-    port  = var.port,
-    name  = var.name
+    image       = var.image,
+    tag         = var.branch,
+    port        = var.port,
+    name        = var.name,
+    db_kind     = var.db_kind,
+    jdbc_url    = var.jdbc_url,
+    db_username = var.db_username,
+    db_password = var.db_password
   }))
 }
 
