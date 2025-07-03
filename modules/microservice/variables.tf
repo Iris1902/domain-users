@@ -3,13 +3,43 @@ variable "name" {
   type        = string
 }
 
-variable "image" {
-  description = "Imagen Docker"
+variable "image_user_create" {
+  description = "Imagen Docker para user-create"
   type        = string
 }
 
-variable "port" {
-  description = "Puerto expuesto"
+variable "port_user_create" {
+  description = "Puerto para user-create"
+  type        = number
+}
+
+variable "image_user_read" {
+  description = "Imagen Docker para user-read"
+  type        = string
+}
+
+variable "port_user_read" {
+  description = "Puerto para user-read"
+  type        = number
+}
+
+variable "image_user_update" {
+  description = "Imagen Docker para user-update"
+  type        = string
+}
+
+variable "port_user_update" {
+  description = "Puerto para user-update"
+  type        = number
+}
+
+variable "image_user_delete" {
+  description = "Imagen Docker para user-delete"
+  type        = string
+}
+
+variable "port_user_delete" {
+  description = "Puerto para user-delete"
   type        = number
 }
 

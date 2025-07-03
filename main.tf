@@ -5,57 +5,24 @@ provider "aws" {
   token      = var.AWS_SESSION_TOKEN
 }
 
-# Módulos para cada microservicio de usuario
-module "user_create" {
+module "domain_users" {
   source = "./modules/microservice"
-  name   = "user-create"
-  image  = "ievinan/microservice-user-create"
-  port   = 7000
-  branch = var.BRANCH_NAME
-  db_kind     = var.DB_KIND
-  jdbc_url    = var.JDBC_URL
-  db_username = var.DB_USERNAME
-  db_password = var.DB_PASSWORD
+  name   = "domain-users"
+  image_user_create = "ievinan/microservice-user-create"
+  port_user_create  = 7000
+  image_user_read   = "ievinan/microservice-user-read"
+  port_user_read    = 7001
+  image_user_update = "ievinan/microservice-user-update"
+  port_user_update  = 7002
+  image_user_delete = "ievinan/microservice-user-delete"
+  port_user_delete  = 7003
+  branch     = var.BRANCH_NAME
+  db_kind    = var.DB_KIND
+  jdbc_url   = var.JDBC_URL
+  db_username= var.DB_USERNAME
+  db_password= var.DB_PASSWORD
 }
 
-module "user_read" {
-  source = "./modules/microservice"
-  name   = "user-read"
-  image  = "ievinan/microservice-user-read"
-  port   = 7001
-  branch = var.BRANCH_NAME
-  db_kind     = var.DB_KIND
-  jdbc_url    = var.JDBC_URL
-  db_username = var.DB_USERNAME
-  db_password = var.DB_PASSWORD
-}
-
-module "user_update" {
-  source = "./modules/microservice"
-  name   = "user-update"
-  image  = "ievinan/microservice-user-update"
-  port   = 7002
-  branch = var.BRANCH_NAME
-  db_kind     = var.DB_KIND
-  jdbc_url    = var.JDBC_URL
-  db_username = var.DB_USERNAME
-  db_password = var.DB_PASSWORD
-}
-
-module "user_delete" {
-  source = "./modules/microservice"
-  name   = "user-delete"
-  image  = "ievinan/microservice-user-delete"
-  port   = 7003
-  branch = var.BRANCH_NAME
-  db_kind     = var.DB_KIND
-  jdbc_url    = var.JDBC_URL
-  db_username = var.DB_USERNAME
-  db_password = var.DB_PASSWORD
-}
-
-
-# --- SNS Topic y Subscription para notificaciones ---
 resource "aws_sns_topic" "asg_alerts" {
   name = "asg-alerts-topic"
 }
@@ -66,7 +33,6 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = "ievinan@uce.edu.ec"
 }
 
-# --- CloudWatch Alarm para el Auto Scaling Group (user-create como referencia) ---
 resource "aws_cloudwatch_metric_alarm" "asg_high_cpu" {
   alarm_name          = "asg-high-cpu-utilization"
   comparison_operator = "GreaterThanThreshold"
@@ -78,12 +44,11 @@ resource "aws_cloudwatch_metric_alarm" "asg_high_cpu" {
   threshold           = 70
   alarm_description   = "Alarma si el promedio de CPU de las instancias del ASG supera el 70%"
   dimensions = {
-    AutoScalingGroupName = module.user_create.asg_name
+    AutoScalingGroupName = module.domain_users.asg_name
   }
   alarm_actions = [aws_sns_topic.asg_alerts.arn]
 }
 
-# --- CloudWatch Dashboard para monitoreo (user-create como referencia) ---
 resource "aws_cloudwatch_dashboard" "asg_dashboard" {
   dashboard_name = "asg-dashboard"
   dashboard_body = jsonencode({
@@ -96,7 +61,7 @@ resource "aws_cloudwatch_dashboard" "asg_dashboard" {
         "height" = 6,
         "properties" = {
           "metrics" = [
-            [ "AWS/EC2", "CPUUtilization", "AutoScalingGroupName", module.user_create.asg_name ]
+            [ "AWS/EC2", "CPUUtilization", "AutoScalingGroupName", module.domain_users.asg_name ]
           ],
           "period" = 300,
           "stat" = "Average",
