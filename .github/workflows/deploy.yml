@@ -51,7 +51,11 @@ jobs:
             -var="AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -var="AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -var="AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}" \
-            -var="BRANCH_NAME=${{ github.ref_name }}"
+            -var="BRANCH_NAME=${{ github.ref_name }}" \
+            -var="DB_KIND=${{ secrets.DB_KIND }}" \
+            -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
+            -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
+            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
       
       - name: Apply Terraform (con control de error)
         id: apply-tf
@@ -62,7 +66,11 @@ jobs:
             -var="AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -var="AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -var="AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}" \
-            -var="BRANCH_NAME=${{ github.ref_name }}"
+            -var="BRANCH_NAME=${{ github.ref_name }}" \
+            -var="DB_KIND=${{ secrets.DB_KIND }}" \
+            -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
+            -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
+            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
           echo $? > tf_exit_code.txt
       - name: Set refresh flag if needed
         id: set-flag
