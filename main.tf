@@ -54,6 +54,7 @@ module "user_delete" {
   db_password = var.DB_PASSWORD
 }
 
+
 # --- SNS Topic y Subscription para notificaciones ---
 resource "aws_sns_topic" "asg_alerts" {
   name = "asg-alerts-topic"

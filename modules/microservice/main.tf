@@ -91,9 +91,9 @@ resource "aws_lb_listener" "listener" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  desired_capacity     = 1
-  max_size             = 2
-  min_size             = 1
+  desired_capacity     = 2
+  max_size             = 3
+  min_size             = 2
   vpc_zone_identifier  = var.subnets
   target_group_arns    = [aws_lb_target_group.tg.arn]
   launch_template {
