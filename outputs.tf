@@ -1,3 +1,1 @@
-output "domain_users_dns" {
-  value = module.domain_users.lb_dns
-}
+# Eliminar el output domain_users_dns porque el módulo domain_users ya no exporta lb_dns.
