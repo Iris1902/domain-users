@@ -1,4 +1,4 @@
-name: Apply Terraform Changes for Domain Security Auth
+name: Apply Terraform Changes for Domain Uers
 
 on:
   push:
