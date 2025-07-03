@@ -41,6 +41,13 @@ jobs:
       - name: Validate Terraform
         run: terraform validate
 
+      - name: Extraer branch del log
+        id: extract-branch
+        run: |
+          branch=$(grep -oP 'on branch \K[^ ]+' trigger-microservice-user-create.log | head -1)
+          echo "BRANCH_NAME=$branch" >> $GITHUB_ENV
+          echo "Branch extraído: $branch"
+
       - name: Format Terraform
         run: terraform fmt -recursive
 
@@ -51,7 +58,7 @@ jobs:
             -var="AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -var="AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -var="AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}" \
-            -var="BRANCH_NAME=${{ github.ref_name }}" \
+            -var="BRANCH_NAME=${{ env.BRANCH_NAME }}" \
             -var="DB_KIND=${{ secrets.DB_KIND }}" \
             -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
@@ -66,7 +73,7 @@ jobs:
             -var="AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -var="AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -var="AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}" \
-            -var="BRANCH_NAME=${{ github.ref_name }}" \
+            -var="BRANCH_NAME=${{ env.BRANCH_NAME }}" \
             -var="DB_KIND=${{ secrets.DB_KIND }}" \
             -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
