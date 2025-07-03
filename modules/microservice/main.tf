@@ -66,6 +66,38 @@ resource "aws_launch_template" "lt" {
   }))
 }
 
+resource "aws_lb" "alb" {
+  name               = "${var.name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.sg.id]
+  subnets            = var.subnets
+}
+
+resource "aws_lb_target_group" "tg" {
+  name     = "${var.name}-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  health_check {
+    path                = "/health"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 2
+  }
+}
+
+resource "aws_lb_listener" "listener" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg.arn
+  }
+}
+
 resource "aws_autoscaling_group" "asg" {
   desired_capacity     = 2
   max_size             = 4
@@ -75,6 +107,7 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.lt.id
     version = "$Latest"
   }
+  target_group_arns    = [aws_lb_target_group.tg.arn]
   lifecycle {
     create_before_destroy = true
   }
