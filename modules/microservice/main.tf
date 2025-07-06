@@ -74,17 +74,63 @@ resource "aws_lb" "alb" {
   subnets            = var.subnets
 }
 
-resource "aws_lb_target_group" "tg" {
-  name     = "${var.name}-tg"
-  port     = 80
+resource "aws_lb_target_group" "tg_create" {
+  name     = "${var.name}-tg-create"
+  port     = 7000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
   health_check {
-    path                = "/health"
+    path                = "/api/users-create/health"
     interval            = 30
     timeout             = 5
-    healthy_threshold   = 3
+    healthy_threshold   = 2
     unhealthy_threshold = 2
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_target_group" "tg_read" {
+  name     = "${var.name}-tg-read"
+  port     = 7001
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  health_check {
+    path                = "/api/users-read/health"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_target_group" "tg_update" {
+  name     = "${var.name}-tg-update"
+  port     = 7002
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  health_check {
+    path                = "/api/users-update/health"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_target_group" "tg_delete" {
+  name     = "${var.name}-tg-delete"
+  port     = 7003
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  health_check {
+    path                = "/api/users-delete/health"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
   }
 }
 
@@ -94,7 +140,63 @@ resource "aws_lb_listener" "listener" {
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
+    target_group_arn = aws_lb_target_group.tg_create.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "rule_create" {
+  listener_arn = aws_lb_listener.listener.arn
+  priority     = 100
+  condition {
+    path_pattern {
+      values = ["/api/users-create*"]
+    }
+  }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg_create.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "rule_read" {
+  listener_arn = aws_lb_listener.listener.arn
+  priority     = 101
+  condition {
+    path_pattern {
+      values = ["/api/users-read*"]
+    }
+  }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg_read.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "rule_update" {
+  listener_arn = aws_lb_listener.listener.arn
+  priority     = 102
+  condition {
+    path_pattern {
+      values = ["/api/users-update*"]
+    }
+  }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg_update.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "rule_delete" {
+  listener_arn = aws_lb_listener.listener.arn
+  priority     = 103
+  condition {
+    path_pattern {
+      values = ["/api/users-delete*"]
+    }
+  }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg_delete.arn
   }
 }
 
@@ -107,7 +209,12 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.lt.id
     version = "$Latest"
   }
-  target_group_arns    = [aws_lb_target_group.tg.arn]
+  target_group_arns    = [
+    aws_lb_target_group.tg_create.arn,
+    aws_lb_target_group.tg_read.arn,
+    aws_lb_target_group.tg_update.arn,
+    aws_lb_target_group.tg_delete.arn
+  ]
   lifecycle {
     create_before_destroy = true
   }
