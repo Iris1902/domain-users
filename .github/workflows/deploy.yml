@@ -62,7 +62,9 @@ jobs:
             -var="DB_KIND=${{ secrets.DB_KIND }}" \
             -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
-            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            -var="vpc_id=${{ secrets.VPC_ID }}" \
+            -var="subnets=${{ secrets.SUBNETS }}"
       
       - name: Apply Terraform (con control de error)
         id: apply-tf
@@ -77,7 +79,9 @@ jobs:
             -var="DB_KIND=${{ secrets.DB_KIND }}" \
             -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
-            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            -var="vpc_id=${{ secrets.VPC_ID }}" \
+            -var="subnets=${{ secrets.SUBNETS }}"
           echo $? > tf_exit_code.txt
       - name: Set refresh flag if needed
         id: set-flag

@@ -21,6 +21,8 @@ module "domain_users" {
   jdbc_url   = var.JDBC_URL
   db_username= var.DB_USERNAME
   db_password= var.DB_PASSWORD
+  vpc_id     = var.vpc_id
+  subnets    = var.subnets
 }
 
 resource "aws_sns_topic" "asg_alerts" {
