@@ -64,7 +64,8 @@ jobs:
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
             -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
             -var="vpc_id=${{ secrets.VPC_ID }}" \
-            -var="subnets=${{ secrets.SUBNETS }}"
+            -var="subnet1=${{ secrets.SUBNET1 }}" \
+            -var="subnet2=${{ secrets.SUBNET2 }}"
       
       - name: Apply Terraform (con control de error)
         id: apply-tf
@@ -81,7 +82,8 @@ jobs:
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
             -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
             -var="vpc_id=${{ secrets.VPC_ID }}" \
-            -var="subnets=${{ secrets.SUBNETS }}"
+            -var="subnet1=${{ secrets.SUBNET1 }}" \
+            -var="subnet2=${{ secrets.SUBNET2 }}"
           echo $? > tf_exit_code.txt
       - name: Set refresh flag if needed
         id: set-flag
