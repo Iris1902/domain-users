@@ -22,7 +22,8 @@ module "domain_users" {
   db_username= var.DB_USERNAME
   db_password= var.DB_PASSWORD
   vpc_id     = var.vpc_id
-  subnets    = var.subnets
+  subnet1    = var.subnet1
+  subnet2    = var.subnet2
 }
 
 resource "aws_sns_topic" "asg_alerts" {

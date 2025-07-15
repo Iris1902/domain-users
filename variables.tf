@@ -45,9 +45,14 @@ variable "vpc_id" {
   description = "VPC ID para los recursos"
 }
 
-variable "subnets" {
-  type        = list(string)
-  description = "Lista de subnets para los recursos"
+variable "subnet1" {
+  type        = string
+  description = "ID de la primera subnet"
+}
+
+variable "subnet2" {
+  type        = string
+  description = "ID de la segunda subnet"
 }
 
 variable "ami_id" {

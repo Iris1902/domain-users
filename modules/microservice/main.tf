@@ -71,7 +71,7 @@ resource "aws_lb" "alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.sg.id]
-  subnets            = var.subnets
+  subnets            = [var.subnet1, var.subnet2]
 }
 
 resource "aws_lb_target_group" "tg_create" {
@@ -204,7 +204,7 @@ resource "aws_autoscaling_group" "asg" {
   desired_capacity     = 2
   max_size             = 4
   min_size             = 2
-  vpc_zone_identifier  = var.subnets
+  vpc_zone_identifier  = [var.subnet1, var.subnet2]
   launch_template {
     id      = aws_launch_template.lt.id
     version = "$Latest"
