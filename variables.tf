@@ -41,13 +41,13 @@ variable "DB_PASSWORD" {
 }
 
 variable "vpc_id" {
-  type    = string
-  default = "vpc-0697808a974fef452"
+  type        = string
+  description = "VPC ID para los recursos"
 }
 
 variable "subnets" {
-  type    = list(string)
-  default = ["subnet-0049cf73cb42dc01f", "subnet-03bd5e4b54dfcfb6e"]
+  type        = list(string)
+  description = "Lista de subnets para los recursos"
 }
 
 variable "ami_id" {

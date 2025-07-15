@@ -62,7 +62,9 @@ jobs:
             -var="DB_KIND=${{ secrets.DB_KIND }}" \
             -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
-            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            -var="vpc_id=${{ secrets.VPC_ID }}" \
+            -var="subnets=${{ secrets.SUBNETS }}"
       
       - name: Apply Terraform (con control de error)
         id: apply-tf
@@ -77,7 +79,9 @@ jobs:
             -var="DB_KIND=${{ secrets.DB_KIND }}" \
             -var="JDBC_URL=${{ secrets.JDBC_URL }}" \
             -var="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
-            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            -var="vpc_id=${{ secrets.VPC_ID }}" \
+            -var="subnets=${{ secrets.SUBNETS }}"
           echo $? > tf_exit_code.txt
       - name: Set refresh flag if needed
         id: set-flag
@@ -103,7 +107,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Refrescar instancias de todos los ASG (uno a uno)
         run: |
-          echo "🔄 Refrescando instancias de los Auto Scaling Groups de todos los microservicios, una por una..."
+          echo "🔄 Refrescando instancias de los Auto Scaling Groups de todos los microservicios, todas las instancias a la vez..."
           for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups --region $AWS_REGION --query "AutoScalingGroups[].AutoScalingGroupName" --output text); do
             echo "Procesando ASG: $ASG_NAME"
             INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups \
@@ -114,23 +118,10 @@ jobs:
             for id in $INSTANCE_IDS; do
               echo "Etiquetando y terminando instancia $id ..."
               aws ec2 create-tags --region $AWS_REGION --resources $id --tags Key=Name,Value=$ASG_NAME-instance
-              aws autoscaling terminate-instance-in-auto-scaling-group --region $AWS_REGION --instance-id $id --no-should-decrement-desired-capacity
-              echo "Esperando a que una nueva instancia esté InService..."
-              while true; do
-                NEW_INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups \
-                  --region $AWS_REGION \
-                  --auto-scaling-group-names $ASG_NAME \
-                  --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId" \
-                  --output text)
-                COUNT=$(echo $NEW_INSTANCE_IDS | wc -w)
-                if [ "$COUNT" -ge 2 ]; then
-                  echo "Nueva instancia en servicio. Continuando..."
-                  break
-                fi
-                echo "Esperando 15 segundos..."
-                sleep 15
-              done
+              aws autoscaling terminate-instance-in-auto-scaling-group --region $AWS_REGION --instance-id $id --no-should-decrement-desired-capacity &
             done
+            wait
+            echo "Todas las instancias del ASG $ASG_NAME han sido terminadas en paralelo."
           done
       - name: Forzar éxito si el refresco fue exitoso
         run: exit 0
